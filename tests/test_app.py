@@ -1,0 +1,48 @@
+
+from fastapi.testclient import TestClient
+
+def test_encrypt_and_grade(client: TestClient):
+    activity_json = {
+        "identifier": "activity-1",
+        "answers": ["correct 1", "correct 2"],
+        "hints": {"correct 1": "Hint for correct1"},
+        "activity_metadata": {"question": "Quess the answer"}
+        }
+
+    response = client.post("/api/v1/activity/encrypt", json = activity_json)
+
+
+    encrypted_payload = response.json()
+
+    response = client.post("/api/v1/submission/grade", json = {
+        "answer": "correct 1",
+        "encrypted_data": encrypted_payload['encrypted_data'],
+        })
+    
+    
+    submission_response = response.json()
+
+    assert submission_response['correct']
+    assert submission_response['hint'] == "Hint for correct1"
+
+
+    response = client.post("/api/v1/submission/grade", json = {
+        "answer": "correct 2",
+        "encrypted_data": encrypted_payload['encrypted_data'],
+        })
+    
+    submission_response = response.json()
+
+    assert submission_response['correct']
+    assert submission_response['hint'] is None
+
+
+    response = client.post("/api/v1/submission/grade", json = {
+        "answer": "incorrect",
+        "encrypted_data": encrypted_payload['encrypted_data'],
+        })
+    
+    submission_response = response.json()
+
+    assert not submission_response['correct']
+    assert submission_response['hint'] is None

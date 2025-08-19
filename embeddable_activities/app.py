@@ -1,7 +1,7 @@
 import json
 import secrets
 from typing import Annotated, Type, TypeVar
-from fastapi import FastAPI, Depends, Response, Cookie, Request
+from fastapi import FastAPI, Response, Cookie, Request
 from pydantic import BaseModel, Field
 from cryptography.fernet import Fernet
 
@@ -41,7 +41,7 @@ class Activity(BaseModel):
 
 
 class ActivitySubmission(EncryptedPayload):
-    submission: str
+    answer: str
 
 
 class SubmissionResponse(BaseModel):
@@ -58,31 +58,31 @@ def get_session_id(
     return session_id
 
 
-@app.post("/encrypt-activity")
+@app.post("/api/v1/activity/encrypt")
 def encrypt_activity(activity: Activity) -> EncryptedPayload:
     """Encrypt an activity for embedding in a client."""
     activity_json = activity.model_dump_json()
     return EncryptedPayload.from_plaintext(activity_json)
 
 
-@app.get("/check-if-solved")
-def check_if_solved(request: Request, identifier: str) -> bool:
+@app.get("/api/v1/activity/completion-status")
+def activity_completion_status(request: Request, identifier: str) -> bool:
     value = request.cookies.get(get_activity_cookie_name(identifier))
     if value is None:
         return False
     return value.lower() == "true"
 
 
-@app.post("/check-submission")
-def check_submission(
+@app.post("/api/v1/submission/grade")
+def grade_activity_submission(
     response: Response, submission: ActivitySubmission
 ) -> SubmissionResponse:
     activity = submission.decrypt_as(Activity)
 
-    is_correct = submission.submission in activity.answers
+    is_correct = submission.answer in activity.answers
 
     if activity.hints:
-        hint_text = activity.hints.get(submission.submission)
+        hint_text = activity.hints.get(submission.answer)
     else:
         hint_text = None
 

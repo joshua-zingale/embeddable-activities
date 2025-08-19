@@ -8,3 +8,8 @@ dependencies = [
     "cryptography>=45.0.6",
     "fastapi[standard-no-fastapi-cloud-cli]>=0.116.1",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]
