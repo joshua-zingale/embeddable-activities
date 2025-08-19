@@ -1,0 +1,10 @@
+[project]
+name = "embeddable-activities"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "cryptography>=45.0.6",
+    "fastapi[standard-no-fastapi-cloud-cli]>=0.116.1",
+]
