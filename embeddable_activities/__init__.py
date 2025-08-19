@@ -2,3 +2,9 @@
 The intended use is to enable activities to be embedded into web pages.
 """
 from .app import app
+
+
+
+__all__ = [
+    "app"
+]

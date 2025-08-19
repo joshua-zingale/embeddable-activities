@@ -1,14 +1,19 @@
 import json
 import secrets
 from typing import Annotated, Type, TypeVar
+from dotenv import load_dotenv
+import os
+
+
 from fastapi import FastAPI, Response, Cookie, Request
 from pydantic import BaseModel, Field
 from cryptography.fernet import Fernet
 
+load_dotenv()
 
 app = FastAPI()
 
-master_key = Fernet.generate_key()
+master_key = os.environ["SECRET_KEY"].encode('utf-8')
 
 
 class EncryptedPayload(BaseModel):
