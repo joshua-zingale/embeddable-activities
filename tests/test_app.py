@@ -1,6 +1,7 @@
 
 from fastapi.testclient import TestClient
-
+from embeddable_activities.models import EncryptedPayload
+import json
 def test_encrypt_and_grade_and_session(client: TestClient):
     activity_json = {
         "identifier": "activity-1",
@@ -8,18 +9,18 @@ def test_encrypt_and_grade_and_session(client: TestClient):
         "hints": {"correct 1": "Hint for correct1"},
         "activity_metadata": {"question": "Quess the answer"}
         }
+    
 
-    response = client.post("/api/v1/activity/encrypt", json = activity_json)
 
 
-    encrypted_payload = response.json()
+    ecrypted_activity = EncryptedPayload.from_plaintext(json.dumps(activity_json)).encrypted_data.decode("utf-8")
 
     assert client.cookies.get('activity-activity-1') is None
 
 
-    response = client.post("/api/v1/submission/grade", json = {
+    response = client.post("/", json = {
         "answer": "incorrect",
-        "encrypted_data": encrypted_payload['encrypted_data'],
+        "encrypted_data": ecrypted_activity,
         })
     
     submission_response = response.json()
@@ -28,9 +29,9 @@ def test_encrypt_and_grade_and_session(client: TestClient):
     assert submission_response['hint'] is None
     assert client.cookies.get('activity-activity-1') is None
 
-    response = client.post("/api/v1/submission/grade", json = {
+    response = client.post("/", json = {
         "answer": "correct 1",
-        "encrypted_data": encrypted_payload['encrypted_data'],
+        "encrypted_data": ecrypted_activity,
         })
     
     submission_response = response.json()
@@ -40,9 +41,9 @@ def test_encrypt_and_grade_and_session(client: TestClient):
     assert client.cookies.get('activity-activity-1') == 'true'
 
 
-    response = client.post("/api/v1/submission/grade", json = {
+    response = client.post("/", json = {
         "answer": "correct 2",
-        "encrypted_data": encrypted_payload['encrypted_data'],
+        "encrypted_data": ecrypted_activity,
         })
     
     submission_response = response.json()

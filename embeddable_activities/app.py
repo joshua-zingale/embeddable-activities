@@ -1,58 +1,15 @@
-import json
+from typing import Annotated
 import secrets
-from typing import Annotated, Type, TypeVar
-from dotenv import load_dotenv
-import os
+from fastapi import FastAPI, Response, Cookie
+
+from .models import (
+    Activity,
+    ActivitySubmission,
+    SubmissionResponse)
 
 
-from fastapi import FastAPI, Response, Cookie, Request
-from pydantic import BaseModel, Field
-from cryptography.fernet import Fernet
-
-load_dotenv()
 
 app = FastAPI()
-
-master_key = os.environ["SECRET_KEY"].encode('utf-8')
-
-
-class EncryptedPayload(BaseModel):
-    """Fernet Encrypted Data"""
-
-    encrypted_data: bytes
-
-    @staticmethod
-    def from_plaintext(text: str):
-        return EncryptedPayload(
-            encrypted_data=Fernet(master_key).encrypt(text.encode("utf-8"))
-        )
-
-    _T = TypeVar("_T", bound=BaseModel)
-
-    def decrypt_as(self, model_type: Type[_T]) -> _T:
-        return model_type(
-            **json.loads(
-                Fernet(master_key).decrypt(self.encrypted_data).decode("utf-8")
-            )
-        )
-
-
-class Activity(BaseModel):
-    # Identifier should be a valid cookie name
-    identifier: str = Field(pattern=r"^[\w\d\-_]+$")
-    answers: list[str]
-    hints: dict[str, str] | None = None
-    activity_metadata: dict | None = None
-
-
-class ActivitySubmission(EncryptedPayload):
-    answer: str
-
-
-class SubmissionResponse(BaseModel):
-    correct: bool
-    hint: str | None
-
 
 def get_session_id(
     response: Response, session_id: Annotated[str | None, Cookie()] = None
@@ -63,22 +20,7 @@ def get_session_id(
     return session_id
 
 
-@app.post("/api/v1/activity/encrypt")
-def encrypt_activity(activity: Activity) -> EncryptedPayload:
-    """Encrypt an activity for embedding in a client."""
-    activity_json = activity.model_dump_json()
-    return EncryptedPayload.from_plaintext(activity_json)
-
-
-@app.get("/api/v1/activity/completion-status")
-def activity_completion_status(request: Request, identifier: str) -> bool:
-    value = request.cookies.get(get_activity_cookie_name(identifier))
-    if value is None:
-        return False
-    return value.lower() == "true"
-
-
-@app.post("/api/v1/submission/grade")
+@app.post("/")
 def grade_activity_submission(
     response: Response, submission: ActivitySubmission
 ) -> SubmissionResponse:
