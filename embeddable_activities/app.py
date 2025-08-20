@@ -2,14 +2,11 @@ from typing import Annotated
 import secrets
 from fastapi import FastAPI, Response, Cookie
 
-from .models import (
-    Activity,
-    ActivitySubmission,
-    SubmissionResponse)
-
+from .models import Activity, ActivitySubmission, SubmissionResponse
 
 
 app = FastAPI()
+
 
 def get_session_id(
     response: Response, session_id: Annotated[str | None, Cookie()] = None
@@ -21,9 +18,7 @@ def get_session_id(
 
 
 @app.post("/")
-def grade_activity_submission(
-    response: Response, submission: ActivitySubmission
-) -> SubmissionResponse:
+def grade_activity_submission(submission: ActivitySubmission) -> SubmissionResponse:
     activity = submission.decrypt_as(Activity)
 
     is_correct = submission.answer in activity.answers
@@ -33,11 +28,4 @@ def grade_activity_submission(
     else:
         hint_text = None
 
-    if is_correct:
-        response.set_cookie(get_activity_cookie_name(activity.identifier), "true")
-
     return SubmissionResponse(correct=is_correct, hint=hint_text)
-
-
-def get_activity_cookie_name(identifier: str):
-    return f"activity-{identifier}"
