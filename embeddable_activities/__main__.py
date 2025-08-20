@@ -28,6 +28,7 @@ echo '{"identifier":"activity-1", "answers":["George Washington"], "hints": {"Do
 This will print the encrypted activity to the standard output.
 
 """
+
 import sys
 from sys import argv
 from cryptography.fernet import Fernet
@@ -35,29 +36,37 @@ from .models import Activity, EncryptedPayload
 import pydantic
 import json
 
+
 def main():
     if len(argv) != 2:
         print(__doc__)
         exit(0)
     match argv[1]:
         case "generate-key":
-            print(Fernet.generate_key().decode('utf-8'))
+            print(Fernet.generate_key().decode("utf-8"))
         case "encrypt":
-            raw_activity = input()
+            raw_activity = sys.stdin.read()
 
             try:
-                encrypted_payload = EncryptedPayload.from_plaintext(Activity(**json.loads(raw_activity)).model_dump_json()) 
+                encrypted_payload = EncryptedPayload.from_plaintext(
+                    Activity(**json.loads(raw_activity)).model_dump_json()
+                )
             except json.JSONDecodeError as e:
-                print("Encountered an error when parsing the input as JSON:", e, file=sys.stderr)
+                print(
+                    "Encountered an error when parsing the input as JSON:",
+                    e,
+                    file=sys.stderr,
+                )
                 exit(1)
             except TypeError as e:
-                print("The input JSON is not a valid Activity: JSON must be a dictionary.")
+                print(
+                    "The input JSON is not a valid Activity: JSON must be a dictionary."
+                )
                 exit(1)
             except pydantic.ValidationError as e:
                 print("The input JSON is not a valid Activity:", e)
                 exit(1)
 
-            
             print(encrypted_payload.encrypted_data.decode("utf-8"), end="")
 
 

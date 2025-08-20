@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-master_key = os.environ["SECRET_KEY"].encode('utf-8')
+master_key = os.environ["SECRET_KEY"].encode("utf-8")
+
 
 class EncryptedPayload(BaseModel):
     """Fernet Encrypted Data"""

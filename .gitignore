@@ -4,3 +4,5 @@
 __pycache__/
 build/
 *.egg-info
+
+example_activities/nginx.conf
