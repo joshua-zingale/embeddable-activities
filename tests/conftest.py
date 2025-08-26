@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from embeddable_activities import app
+from embeddable_activities.app import app
 
 
 @pytest.fixture

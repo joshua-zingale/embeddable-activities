@@ -13,6 +13,8 @@ python3 -m embeddable_activities generate-key
 This key may be used to set the SECRET_KEY environment variable for the web server.
 If thus used, do not share the key with anyone.
 
+You may also use `store-key` to append a new key to an existent .env file or to create a new one if it doesn't exist.
+The web server will automatically load the key from this file.
 
 ACTIVITY ENCRYPTING
 ===================
@@ -27,24 +29,38 @@ echo '{"identifier":"activity-1", "answers":["George Washington"], "hints": {"Do
 ```
 This will print the encrypted activity to the standard output.
 
+
+SERVING THE WEB SERVER
+======================
+
+To serve the web server, run the following command:
+```
+python3 -m embeddable_activities serve [host:port]
+```
+This will start the web server and load the secret key from the .env file.
 """
 
 import sys
-from sys import argv
+import os
 from cryptography.fernet import Fernet
-from .models import Activity, EncryptedPayload
 import pydantic
 import json
 
 
 def main():
-    if len(argv) != 2:
+    if len(sys.argv) < 2 and not (len(sys.argv) == 3 and sys.argv[1] == "serve"):
         print(__doc__)
+        print(sys.argv)
         exit(0)
-    match argv[1]:
+    match sys.argv[1]:
         case "generate-key":
             print(Fernet.generate_key().decode("utf-8"))
+        case "store-key":
+            with open(".env", "+a") as f:
+                f.write(f"SECRET_KEY={Fernet.generate_key().decode('utf-8')}\n")
         case "encrypt":
+            from .models import Activity, EncryptedPayload
+
             raw_activity = sys.stdin.read()
 
             try:
@@ -68,6 +84,22 @@ def main():
                 exit(1)
 
             print(encrypted_payload.encrypted_data.decode("utf-8"), end="")
+        case "serve":
+            if len(sys.argv) == 3:
+                host, port = sys.argv[2].split(":")
+            else:
+                host, port = "0.0.0.0", "8000"
+            os.execvp(
+                "uvicorn",
+                [
+                    "uvicorn",
+                    "embeddable_activities.app:app",
+                    "--host",
+                    host,
+                    "--port",
+                    port,
+                ],
+            )
 
 
 if __name__ == "__main__":

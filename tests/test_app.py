@@ -3,7 +3,7 @@ from embeddable_activities.models import EncryptedPayload
 import json
 
 
-def test_encrypt_and_grade_and_session(client: TestClient):
+def test_encrypt_and_grade(client: TestClient):
     activity_json = {
         "identifier": "activity-1",
         "answers": ["correct 1", "correct 2"],

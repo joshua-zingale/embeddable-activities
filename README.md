@@ -11,3 +11,53 @@ For this to work, each submission must contain the submission along with the act
 One problem with embedding activities directly into HTML is that user's could inspect the source to dirive the correct answer for the activity.
 To close this security hole, the web server accepts encrypted activity data.
 Therefore, inspecting the HTML source would only reveal an uninterpretable encrypted string.
+
+
+## Usage
+
+The module is executable with
+
+```bash
+python3 -m embeddable_activities
+```
+
+The script has multiple commands.
+
+
+### Key Generation
+
+To generate a key, pass in the argument "generate-key".
+For example, you could use
+```bash
+python3 -m embeddable_activities generate-key
+```
+This key may be used to set the SECRET_KEY environment variable for the web server.
+If thus used, do not share the key with anyone.
+
+You may also use `store-key` to append a new key to an existent .env file or to create a new one if it doesn't exist.
+The web server will automatically load the key from this file.
+
+```bash
+python3 -m embeddable_activities store-key
+```
+
+### Activity Encryption
+
+To encrypt an activity, pass in the argument `encrypt` as the first argument.
+The activity to be encrypted should be entered via the standard input as a JSON object.
+The encrypted activity will be printed to the standard output and can be embedded directly
+into a website.
+For example, you could use
+```bash
+echo '{"identifier":"activity-1", "answers":["George Washington"], "hints": {"Donald Trump": "Wrong!"}}' | python3 -m embeddable_activities encrypt
+```
+This will print the encrypted activity to the standard output.
+
+
+### Serving
+
+To serve the web server, run the following command:
+```bash
+python3 -m embeddable_activities serve [host:port]
+```
+This will start the web server and load the secret key from the .env file.
