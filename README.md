@@ -61,3 +61,31 @@ To serve the web server, run the following command:
 python3 -m embeddable_activities serve [host:port]
 ```
 This will start the web server and load the secret key from the .env file.
+
+## Examples
+
+In the examples directory is a multiple-choice question that uses the system.
+Included are an html page alongside a javascript file and a JSON file containing the question information.
+To run the example, you need to generate a key as with
+
+```bash
+python3 -m embeddable_activities store-key
+```
+
+Then, you must encrypt the JSON, which can be done with
+
+```bash
+cat example_activities/multiple-choice.json | python3 -m embeddable_activities encrypt
+```
+
+Next, copy and paste the encryped question string into both of the `activity=` attributes in `example_activities/multiple-choice.html`.
+
+Finally, you can serve the web server with
+
+```bash
+python3 -m embeddable_activities serve
+```
+
+and you can host the static files in whatever way best suites you.
+
+For more serious use, you would of course want to autimate the pipeline of encrypting questions and this is only an example to demonstrate the web-server's functionality.
