@@ -1,4 +1,4 @@
-SERVER_HOST = "http://localhost/api/";
+SERVER_HOST = "http://localhost/api/submissions";
 
 
 

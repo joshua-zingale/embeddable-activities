@@ -1,9 +1,11 @@
 import json
 from typing import Type, TypeVar
 from dotenv import load_dotenv
+from datetime import datetime
 import os
 
 from pydantic import BaseModel, Field
+
 from cryptography.fernet import Fernet
 
 from dotenv import load_dotenv
@@ -49,3 +51,10 @@ class ActivitySubmission(EncryptedPayload):
 class SubmissionResponse(BaseModel):
     correct: bool
     hint: str | None
+
+
+class Submission(BaseModel):
+    activity_id: str = Field(pattern=r"^[\w\d\-_]+$")
+    session_id: str
+    answer: str
+    timestamp: datetime

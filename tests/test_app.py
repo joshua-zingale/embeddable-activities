@@ -16,7 +16,7 @@ def test_encrypt_and_grade(client: TestClient):
     ).encrypted_data.decode("utf-8")
 
     response = client.post(
-        "/",
+        "/api/submissions",
         json={
             "answer": "incorrect",
             "encrypted_data": ecrypted_activity,
@@ -29,7 +29,7 @@ def test_encrypt_and_grade(client: TestClient):
     assert submission_response["hint"] is None
 
     response = client.post(
-        "/",
+        "/api/submissions",
         json={
             "answer": "correct 1",
             "encrypted_data": ecrypted_activity,
@@ -42,7 +42,7 @@ def test_encrypt_and_grade(client: TestClient):
     assert submission_response["hint"] == "Hint for correct1"
 
     response = client.post(
-        "/",
+        "/api/submissions",
         json={
             "answer": "correct 2",
             "encrypted_data": ecrypted_activity,

@@ -64,7 +64,7 @@ This will start the web server and load the secret key from the .env file.
 
 ## Examples
 
-In the examples directory is a multiple-choice question that uses the system.
+In the `static/` directory is a multiple-choice question that uses the system.
 Included are an html page alongside a javascript file and a JSON file containing the question information.
 To run the example, you need to generate a key as with
 
@@ -86,6 +86,6 @@ Finally, you can serve the web server with
 python3 -m embeddable_activities serve
 ```
 
-and you can host the static files in whatever way best suites you.
+static files are hosted at `host:port/`.
 
 For more serious use, you would of course want to automate the pipeline of encrypting questions: this is only an example to demonstrate the web-server's functionality.
